@@ -14,3 +14,4 @@ class Storage:
 
             fs.write('\n')
             json.dump(o, fs)
+            fs.flush()
