@@ -18,7 +18,7 @@ class MyPasswordFinder:
             'POST_pass': 'POST\s*(?P<addr>[^\n]*)(' + header_line + '){0,16}\n(?P<pass>[^\n]*(' + key_words + ')[^\n]*)'
         }
         m = re.search(r.get('POST_pass'), http_raw, re.MULTILINE | re.DOTALL)
-        result = m.groupdict() if m is not None else None1
+        result = m.groupdict() if m is not None else None
         return result
 
 
