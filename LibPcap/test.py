@@ -6,6 +6,7 @@ f = open('myPass.cap', 'rb')
 pcap = dpkt.pcap.Reader(f)
 
 for ts, buf in pcap:
+    print(buf)
     eth = dpkt.ethernet.Ethernet(buf)
     ip = eth.data
     tcp = ip.data
