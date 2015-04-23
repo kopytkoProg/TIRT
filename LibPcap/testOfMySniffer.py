@@ -13,8 +13,8 @@ if __name__ == "__main__":
 
     input_con = service_controller.get_connection("SniffService")
     while True:
-        try:
+
             msg = input_con.my_read()
             print(msg)
-        except:
-            pass
+
+
