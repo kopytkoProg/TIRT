@@ -4,6 +4,8 @@ import sys
 import string
 import platform
 import socket
+import dpkt
+from struct import *
 
 
 class IpAddress(Structure):
@@ -100,7 +102,42 @@ def start_sniffing(callback):
         uh_address = ih_address + ip_len
         uh = cast(uh_address, POINTER(UdpHeader)).contents
 
-        if ih.proto.real == 0x06:
+        ip_data_end = ih_address + socket.ntohs(ih.tlen.real)
+
+        ih_bytes = cast(ih_address, POINTER(c_ushort * ((ih.ver_ihl.real & 0xf) * 2))).contents
+        ip_data = cast(addressof(pkt_data.contents), POINTER(c_ubyte * (socket.ntohs(ih.tlen.real) + 14))).contents
+
+        sum = 2
+        for b in ih_bytes:
+            sum += b
+
+        sum &= 0xffff
+
+        # -------------------------------------------------------
+
+        # print sum
+
+        a = []
+        for b in ip_data:
+            a.append(chr(b))
+
+        buf = pack('c' * (socket.ntohs(ih.tlen.real) + 14), *a)
+
+        try:
+            eth = dpkt.ethernet.Ethernet(buf)
+            ip = eth.data
+
+            tcp = ip.data
+
+            if tcp.dport == 80 and len(tcp.data) > 0:
+                http = dpkt.http.Request(tcp.data)
+                print (http.headers['host'] + http.uri), http.body, http.method
+                print tcp.data
+        except:
+            pass
+
+        if ih.proto.real == 0x06 and sum == 0xffff:
+
             th_address = uh_address
             th = cast(th_address, POINTER(TcpHeader)).contents
 
