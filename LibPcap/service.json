@@ -1,0 +1,15 @@
+{
+  "parametersHost": "localhost:22002",
+  "inputs": {
+    "In": {
+      "ip": "127.0.0.1",
+      "port": 21002
+    }
+  },
+  "outputs": {
+    "StorageService": {
+      "ip": "127.0.0.1",
+      "port": 21000
+    }
+  }
+}
