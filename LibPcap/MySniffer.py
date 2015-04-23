@@ -120,24 +120,38 @@ def start_sniffing(callback):
         buf = pack('c' * (socket.ntohs(ih.tlen.real) + 14), *a)
 
         if check_sum == 0xffff:
-            try:
+
                 eth = dpkt.ethernet.Ethernet(buf)
                 ip = eth.data
                 tcp = ip.data
 
-                if (tcp.dport == 80 or tcp.sport == 80) and len(tcp.data) > 0:
-                    callback(tcp.data)
+                if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80) and len(tcp.data) > 0:
+                    print tcp.data
+                    xyz = []
+                    for x in tcp.data:
+                        xyz.append(ord(x))
+
+                    callback(xyz)
+                    # print xyz
+                    # callback(bytes(tcp.data))
+                    # print tcp.sport, tcp.dport, tcp.data
                     # http = dpkt.http.Request(tcp.data)
-            except:
-                pass
+                    # if tcp.dport == 80:
+                    #     http = dpkt.http.Request(tcp.data)
+                    #     print tcp.sport, tcp.dport, http.body
+                    # else:
+                    #     http = dpkt.http.Response(tcp.data)
+                    #     print tcp.sport, tcp.dport, http.body
+
+
+
+
 
         # -------------------------------------------------------
 
 
 
-        #
-        #
-        #
+
         # if ih.proto.real == 0x06 and check_sum == 0xffff:
         #
         #     th_address = uh_address
@@ -254,4 +268,4 @@ def start_sniffing(callback):
 
 
 if __name__ == "__main__":
-    start_sniffing()
+    pass # start_sniffing()
