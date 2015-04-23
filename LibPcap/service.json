@@ -1,15 +1,11 @@
 {
-  "parametersHost": "localhost:22002",
+  "parametersHost": "localhost:22003",
   "inputs": {
-    "In": {
-      "ip": "127.0.0.1",
-      "port": 21002
-    }
   },
   "outputs": {
-    "StorageService": {
+    "SniffService": {
       "ip": "127.0.0.1",
-      "port": 21000
+      "port": 21002
     }
   }
 }

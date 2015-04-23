@@ -72,10 +72,10 @@ if platform.python_version()[0] == "3":
 PHAND = CFUNCTYPE(None, POINTER(c_ubyte), POINTER(pcap_pkthdr), POINTER(c_ubyte))
 
 
-def main(callback):
+def start_sniffing(callback):
     """
     Start sniffing. When tcp packet with HTTP header received then call callback
-    :param callback: 
+    :param callback:
     :return:
     """
     # Callback function invoked by libpcap for every incoming packet
@@ -110,7 +110,7 @@ def main(callback):
             # print str(ih.daddr.byte1.real) + "." + str(ih.daddr.byte2.real) + "." + str(ih.daddr.byte3.real) + "." + str(
             # ih.daddr.byte4.real) + ":" + str(socket.ntohs(uh.dport.real))
 
-            tcp_data_offset = ((th.drf.real & 0xf0) >> 4) * 4
+            tcp_data_offset = ((socket.ntohs(th.drf.real) & 0xf000) >> 12) * 4
             tcp_data_start = tcp_data_offset + th_address
             tcp_data_end = ih_address + socket.ntohs(ih.tlen.real)
 
@@ -215,4 +215,4 @@ def main(callback):
 
 
 if __name__ == "__main__":
-    main()
+    start_sniffing()
