@@ -128,9 +128,9 @@ def start_sniffing(callback):
             if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80) and len(tcp.data) > 0:
 
                 if tcp.data.startswith('HTTP') or tcp.data.startswith('GET') or tcp.data.startswith('POST'):
-                    # wybrać tylko nagłówek http
-                    # podziekić na pola nagłówkowe i dane
-                    # i taki sposób przekazać dalej
+                    # wybrac tylko naglowek http
+                    # podziekic na pola naglowkowe i dane
+                    # i taki sposob przekazac dalej
                     print tcp.data
 
                 xyz = []

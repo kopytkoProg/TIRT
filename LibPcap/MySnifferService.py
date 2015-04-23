@@ -6,10 +6,10 @@ from MySniffer import Tcp, start_sniffing
 
 
 class MySnifferService(Service):
-    def one_each_tcp_packet(self, tcp):
+    def one_each_tcp_packet(self, data):
         output_msg = self.get_output('SniffService')
         # print tcp.__str__()
-        output_msg.my_send(tcp.__str__())
+        output_msg.my_send(data)
 
     def run(self):
         print('run')
