@@ -126,24 +126,24 @@ def start_sniffing(callback):
             tcp = ip.data
 
             if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80) and len(tcp.data) > 0:
-
+                # tcp.data.find('\r\n\r\n')
                 if tcp.data.startswith('HTTP') or tcp.data.startswith('GET') or tcp.data.startswith('POST'):
                     # wybrac tylko naglowek http
                     # podziekic na pola naglowkowe i dane
-                    # i taki sposob przekazac dalej
+                    # i taka postac przekazac dalej
                     print tcp.data
 
                 xyz = []
                 for x in tcp.data:
                     xyz.append(ord(x))
 
-                callback(xyz)
+                callback({'data': xyz, 'hader': ''})
 
                 # try:
                 # if tcp.dport == 80:
                 # http = dpkt.http.Request(tcp.data)
-                #         print tcp.sport, tcp.dport, http.body
-                #     else:
+                # print tcp.sport, tcp.dport, http.body
+                # else:
                 #         http = dpkt.http.Response(tcp.data)
                 #         print tcp.sport, tcp.dport, http.body
                 # except:
