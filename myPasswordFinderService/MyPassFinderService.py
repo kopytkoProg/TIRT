@@ -17,7 +17,15 @@ class MyPassFinderService(Service):
         while self.running() and not exception:
 
             msg = input_msg.my_read()
-            post_fields = self.my_password_finder.find_pass(msg)
+
+            post_fields = None
+
+            if type(msg) is str:
+                post_fields = self.my_password_finder.find_pass_in_http_message(msg)
+            elif type(msg) is dict:
+                print msg
+                post_fields = self.my_password_finder.find_pass(msg)
+
             if post_fields is not None:
                 print ('MyPassFinderService:')
                 print (post_fields)

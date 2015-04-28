@@ -103,9 +103,13 @@ def start_sniffing(callback):
 
         # Checksum count
         ih_bytes = cast(ih_address, POINTER(c_ushort * ((ih.ver_ihl.real & 0xf) * 2))).contents
+
         check_sum = 2
+        ntochsum = []
+
         for b in ih_bytes:
-            check_sum += b
+            check_sum += socket.ntohs(b)
+            ntochsum.append(socket.ntohs(b))
 
         check_sum &= 0xffff
 
@@ -145,9 +149,9 @@ def start_sniffing(callback):
                     # print tcp.sport, tcp.dport, http.body
                     # else:
                     # http = dpkt.http.Response(tcp.data)
-                    #         print tcp.sport, tcp.dport, http.body
+                    # print tcp.sport, tcp.dport, http.body
                     # except:
-                    #     pass
+                    # pass
 
 
 

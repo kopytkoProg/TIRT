@@ -1,0 +1,15 @@
+{
+  "parametersHost": "localhost:22004",
+  "inputs": {
+    "In": {
+      "ip": "127.0.0.1",
+      "port": 21003
+    }
+  },
+  "outputs": {
+    "Out": {
+      "ip": "127.0.0.1",
+      "port": 21002
+    }
+  }
+}

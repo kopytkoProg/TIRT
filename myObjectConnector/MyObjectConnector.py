@@ -13,7 +13,8 @@ class MyInputObjectConnector(InputObjectConnector):
 
         try:
             msg = self.read()
-        except:
+        except Exception as e:
+            print e
             self.reopen_input()
             return self.read()
         else:
@@ -33,6 +34,7 @@ class MyOutputObjectConnector(OutputObjectConnector):
     def my_send(self, msg):
         try:
             self.send(msg)
-        except:
+        except Exception as e:
+            print e
             self.reopen_output()
             self.send(msg)

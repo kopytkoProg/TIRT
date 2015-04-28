@@ -30,3 +30,9 @@
 {"addr": "http://electropark.pl/logowanie HTTP/1.", "pass": "email=sssssssssssssssss&passwd=sssssssssssssssss&back=my-account.php&SubmitLogin=Zaloguj"}
 {"addr": "http://electropark.pl/logowanie HTTP/1.", "pass": "email=sssssssssssssssss&passwd=sssssssssssssssss&back=my-account.php&SubmitLogin=Zaloguj"}
 {"addr": "http://electropark.pl/logowanie HTTP/1.", "pass": "email=sssssssssssssssss&passwd=sssssssssssssssss&back=my-account.php&SubmitLogin=Zaloguj"}
+{"pass": "email=geabaeph%40dodsi.com&passwd=asdfasdfasdf&SubmitLogin=Zaloguj"}
+{"pass": "username=asdfasdf&password=asdfasdf&redirect=%2Findex.php&login=Zaloguj"}
+{"pass": "email=geabaeph%40dodsi.com&passwd=asdfasdfasdf&SubmitLogin=Zaloguj"}
+{"addr": "electropark.pl/logowanie", "pass": "email=geabaeph%40dodsi.com&passwd=asdfasdfasdf&SubmitLogin=Zaloguj"}
+{"addr": "www.elektroda.pl/rtvforum/login.php", "pass": "username=Zaaaaap&password=kurazzxcv10&redirect=%2Findex.php&login=Zaloguj"}
+{"addr": "www.elektroda.pl/rtvforum/login.php", "pass": "username=asdasd&password=%B3%B3%B3&redirect=%2Findex.php&login=Zaloguj"}

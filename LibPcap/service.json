@@ -5,7 +5,7 @@
   "outputs": {
     "SniffService": {
       "ip": "127.0.0.1",
-      "port": 21002
+      "port": 21003
     }
   }
 }
