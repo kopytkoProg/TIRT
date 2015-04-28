@@ -23,7 +23,7 @@ class MyPassFinderService(Service):
             if type(msg) is str:
                 post_fields = self.my_password_finder.find_pass_in_http_message(msg)
             elif type(msg) is dict:
-                print msg
+                # print msg
                 post_fields = self.my_password_finder.find_pass(msg)
 
             if post_fields is not None:

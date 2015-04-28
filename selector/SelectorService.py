@@ -22,6 +22,7 @@ class SelectorService(Service):
             print msg
             if isinstance(h, HttpRequest) and h.method == 'POST':
                 if 'Content-Encoding' not in h.fields \
+                        and 'Content-Type' in h.fields \
                         and h.fields['Content-Type'] == "application/x-www-form-urlencoded":
                     print HeaderParser.data_to_string(msg['data'])
                     output_msg.my_send(
