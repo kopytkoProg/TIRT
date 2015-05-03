@@ -6,6 +6,7 @@ import platform
 import socket
 import dpkt
 from struct import *
+from LibPcap.TcpReassembler import TcpReassembler
 
 
 class IpAddress(Structure):
@@ -81,6 +82,8 @@ def start_sniffing(callback):
     :return:
     """
     # Callback function invoked by libpcap for every incoming packet
+    reas = TcpReassembler()
+
     def _packet_handler(param, header, pkt_data):
         """
         This function is called when ip packet have been received.
@@ -129,9 +132,25 @@ def start_sniffing(callback):
             ip = eth.data
             tcp = ip.data
 
-            if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80) and len(tcp.data) > 0:
+            if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80):
 
-                if tcp.data.startswith('HTTP') or tcp.data.startswith('GET') or tcp.data.startswith('POST'):
+                # print reas.add_packet(tcp)
+
+                # if tcp.dport == 80 and r is not None:
+                #     # req = dpkt.http.Request(r)
+                #     # print dir(req)
+                #     # print(req)
+                #     pass
+                # if tcp.sport == 80 and r is not None:
+                #     # print('=================================')
+                #     # print(r)
+                #     # req = dpkt.http.Response(r)
+                #     # print dir(req)
+                #     # print(req)
+                #     # print(req.data)
+                #     pass
+
+                if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith('GET') or tcp.data.startswith('POST'):
 
                     eohh = '\r\n\r\n'
 

@@ -39,3 +39,4 @@
 {"addr": "electropark.pl/logowanie", "pass": "email=shaasdfasdf%40wp.pl&passwd=asdfasdf&back=my-account.php&SubmitLogin=Zaloguj"}
 {"addr": "electropark.pl/logowanie", "pass": "email=shaasdfasdf%40wp.pl&passwd=asdfasdf&back=my-account.php&SubmitLogin=Zaloguj"}
 {"addr": "electropark.pl/logowanie", "pass": "email=shaasdfasdf%40wp.pl&passwd=asdfasdf&back=my-account.php&SubmitLogin=Zaloguj"}
+{"addr": "electropark.pl/logowanie", "pass": "email=asdasdas&passwd=asdasdasd&back=my-account.php&SubmitLogin=Zaloguj"}
