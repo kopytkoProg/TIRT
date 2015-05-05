@@ -137,24 +137,38 @@ def start_sniffing(callback):
             if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80):
 
                 rp = reas.add_packet(tcp)
-                print rp
+                # print rp
                 for p in rp['data']:
                     r = http_reas.add_packet(p, rp['data'][p])
                     if len(r) > 0:
-                        print r
+                        # print r
+                        pass
 
-                if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith(
-                        'GET') or tcp.data.startswith('POST'):
+                    for http_datagram in r:
 
-                    eohh = '\r\n\r\n'
+                        eohh = '\r\n\r\n'
 
-                    http_header = tcp.data[:tcp.data.find(eohh)]
+                        http_header = http_datagram[:http_datagram.find(eohh)]
 
-                    http_data = []
-                    for b in tcp.data[tcp.data.find(eohh) + len(eohh):]:
-                        http_data.append(ord(b))
+                        http_data = []
+                        for b in http_datagram[http_datagram.find(eohh) + len(eohh):]:
+                            http_data.append(ord(b))
 
-                    callback({'data': http_data, 'header': http_header})
+                        callback({'data': http_data, 'header': http_header})
+
+
+                # if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith(
+                #         'GET') or tcp.data.startswith('POST'):
+                #
+                #     eohh = '\r\n\r\n'
+                #
+                #     http_header = tcp.data[:tcp.data.find(eohh)]
+                #
+                #     http_data = []
+                #     for b in tcp.data[tcp.data.find(eohh) + len(eohh):]:
+                #         http_data.append(ord(b))
+                #
+                #     callback({'data': http_data, 'header': http_header})
 
 
 
