@@ -120,7 +120,7 @@ class TcpReassembler():
 
                 c_key = None
                 for (cs, cns) in self.closing[c]:
-                    if not c_key and cs in [ns for (s, ns) in self.stream[c]]:
+                    if not c_key and c in self.stream and cs in [ns for (s, ns) in self.stream[c]]:
                         c_key = (cs, cns)
                         any_changes |= True
 

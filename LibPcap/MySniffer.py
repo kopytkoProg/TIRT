@@ -7,6 +7,7 @@ import socket
 import dpkt
 from struct import *
 from LibPcap.TcpReassembler import TcpReassembler
+from HttpReassembler import HttpReassembler
 
 
 class IpAddress(Structure):
@@ -83,6 +84,7 @@ def start_sniffing(callback):
     """
     # Callback function invoked by libpcap for every incoming packet
     reas = TcpReassembler()
+    http_reas = HttpReassembler()
 
     def _packet_handler(param, header, pkt_data):
         """
@@ -134,23 +136,15 @@ def start_sniffing(callback):
 
             if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80):
 
-                # print reas.add_packet(tcp)
+                rp = reas.add_packet(tcp)
+                print rp
+                for p in rp['data']:
+                    r = http_reas.add_packet(p, rp['data'][p])
+                    if len(r) > 0:
+                        print r
 
-                # if tcp.dport == 80 and r is not None:
-                #     # req = dpkt.http.Request(r)
-                #     # print dir(req)
-                #     # print(req)
-                #     pass
-                # if tcp.sport == 80 and r is not None:
-                #     # print('=================================')
-                #     # print(r)
-                #     # req = dpkt.http.Response(r)
-                #     # print dir(req)
-                #     # print(req)
-                #     # print(req.data)
-                #     pass
-
-                if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith('GET') or tcp.data.startswith('POST'):
+                if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith(
+                        'GET') or tcp.data.startswith('POST'):
 
                     eohh = '\r\n\r\n'
 
@@ -162,71 +156,6 @@ def start_sniffing(callback):
 
                     callback({'data': http_data, 'header': http_header})
 
-                    # try:
-                    # if tcp.dport == 80:
-                    # http = dpkt.http.Request(tcp.data)
-                    # print tcp.sport, tcp.dport, http.body
-                    # else:
-                    # http = dpkt.http.Response(tcp.data)
-                    # print tcp.sport, tcp.dport, http.body
-                    # except:
-                    # pass
-
-
-
-
-
-                    # -------------------------------------------------------
-
-
-
-
-                    # if ih.proto.real == 0x06 and check_sum == 0xffff:
-                    #
-                    #     th_address = uh_address
-                    #     th = cast(th_address, POINTER(TcpHeader)).contents
-                    #
-                    #     # print str(ih.saddr.byte1.real) + "." + str(ih.saddr.byte2.real) + "." + str(ih.saddr.byte3.real) + "." + str(
-                    #     # ih.saddr.byte4.real) + ":" + str(socket.ntohs(uh.sport.real))
-                    #     #
-                    #     # print str(ih.daddr.byte1.real) + "." + str(ih.daddr.byte2.real) + "." + str(ih.daddr.byte3.real) + "." + str(
-                    #     # ih.daddr.byte4.real) + ":" + str(socket.ntohs(uh.dport.real))
-                    #
-                    #     tcp_data_offset = ((socket.ntohs(th.drf.real) & 0xf000) >> 12) * 4
-                    #     tcp_data_start = tcp_data_offset + th_address
-                    #     tcp_data_end = ih_address + socket.ntohs(ih.tlen.real)
-                    #
-                    #     tcp_data = cast(tcp_data_start, POINTER(c_ubyte * (tcp_data_end - tcp_data_start))).contents
-                    #
-                    #     # print 'th_address: ' + str(th_address)
-                    #     # print 'tcp_data_offset: ' + str(tcp_data_offset)
-                    #     # print 'tcp_data_start: ' + str(tcp_data_start)
-                    #     # print 'tcp_data_end: ' + str(tcp_data_end)
-                    #     # print 'tcp_data_end: ' + str(tcp_data_end)
-                    #     # print 'ih.tlen.real: ' + str(socket.ntohs(ih.tlen.real))
-                    #
-                    #     s = ''
-                    #     l = []
-                    #     for c in tcp_data:
-                    #         s += chr(c) if c < 128 else '[' + str(c) + ']'
-                    #         l.append(c)
-                    #
-                    #     # print bytearray(l).decode('utf-8')
-                    #     # print s
-                    #     if s.startswith('HTTP') or s.startswith('GET') or s.startswith('POST'):
-                    #         tcp = Tcp(th,
-                    #                   l,
-                    #                   str(ih.saddr.byte1.real) + "." + str(ih.saddr.byte2.real) + "." + str(
-                    #                       ih.saddr.byte3.real) + "." + str(
-                    #                       ih.saddr.byte4.real),
-                    #                   str(ih.daddr.byte1.real) + "." + str(ih.daddr.byte2.real) + "." + str(
-                    #                       ih.daddr.byte3.real) + "." + str(
-                    #                       ih.daddr.byte4.real)
-                    #                   )
-                    #
-                    #         callback(tcp)
-                    #
-                    # print("%s,%.6d len:%d" % (timestr, header.contents.ts.tv_usec, header.contents.len))
 
 
     packet_handler = PHAND(_packet_handler)
