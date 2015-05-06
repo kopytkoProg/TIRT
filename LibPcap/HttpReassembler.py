@@ -23,6 +23,7 @@ class HttpReassembler:
         elif ports in self.hs:
             # append data to session
             self.hs[ports]['data'] += data
+            self.hs[ports]['time'] = current_milli_time()
         else:
             any_changes = False
 

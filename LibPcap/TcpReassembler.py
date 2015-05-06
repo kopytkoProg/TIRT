@@ -1,5 +1,9 @@
 __author__ = 'michal'
 import dpkt
+import time
+
+current_milli_time = lambda: int(round(time.time() * 1000))
+time_threshold = 1000 * 100
 
 
 class TcpReassembler():
@@ -8,6 +12,7 @@ class TcpReassembler():
         self.waiting = {}
         self.closing = {}
 
+        self.s = {}
 
     def add_packet(self, tcp):
         """
@@ -31,103 +36,105 @@ class TcpReassembler():
         cs = (tcp.sport, tcp.dport)
 
         if syn_flag and not fin_flag:  # (sync), (sync, ack)
-
             p = (tcp.seq, tcp.seq + 1)
+            self.s[cs] = {'stream': {p: tcp.data}, 'waiting': {}, 'closing': {}, 'time': current_milli_time()}
 
-            self.stream[cs] = {}
-            self.waiting[cs] = {}
-            self.closing[cs] = {}
+        elif ack_flag and not syn_flag and not fin_flag and cs in self.s:  # only ack
 
-            self.stream[cs][p] = tcp.data
-
-        elif ack_flag and not syn_flag and not fin_flag:  # only ack
-
-            if len(tcp.data) > 0 and cs in self.stream:  # som data
+            if len(tcp.data) > 0 and cs in self.s:  # som data
                 p = (tcp.seq, tcp.seq + len(tcp.data))
-
-                if cs not in self.waiting:
-                    self.waiting[cs] = {}
-
-                self.waiting[cs][p] = tcp.data
+                self.s[cs]['waiting'][p] = tcp.data
 
             else:  # only ack without data
                 pass
 
-        elif fin_flag and not syn_flag:  # (fin), (fin, ack)
+            self.s[cs]['time'] = current_milli_time()
+
+        elif fin_flag and not syn_flag and cs in self.s:  # (fin), (fin, ack)
             p = (tcp.seq, tcp.seq + 1)
+            self.s[cs]['closing'][p] = tcp.data
 
-            self.closing[cs] = {}
-            self.closing[cs][p] = tcp.data
+            self.s[cs]['time'] = current_milli_time()
 
-        elif rst_flag and not syn_flag:  # (rst), (rst, ack)
+        elif rst_flag and not syn_flag and cs in self.s:  # (rst), (rst, ack)
             # if reset flag then remove all received data in both direction
             cs_r = (cs[1], cs[0])
 
-            if cs in self.stream:
-                self.stream.pop(cs)
-                self.closing.pop(cs)
-                self.waiting.pop(cs)
+            if cs in self.s:
+                self.s.pop(cs)
+                result_closed.append(cs)
 
-            if cs_r in self.stream:
-                self.stream.pop(cs_r)
-                self.closing.pop(cs_r)
-                self.waiting.pop(cs_r)
+            if cs_r in self.s:
+                self.s.pop(cs_r)
+                result_closed.append(cs)
 
+        # ------------------------------
+        # remove old inactive tcp stream
+        # ------------------------------
+
+        for k in self.s.keys():
+            if current_milli_time() - self.s[k]['time'] > time_threshold:
+                self.s.pop(k)
+
+        # -----------------------------------
         # try concat waiting packet to stream
+        # -----------------------------------
 
         any_changes = True
         while any_changes:
 
             any_changes = False
 
-            for c in self.waiting:
+            for c in self.s:
 
                 c_key = None
-                for (cs, cns) in self.waiting[c]:
-                    if not c_key and cs in [ns for (s, ns) in self.stream[c]]:
+                for (cs, cns) in self.s[c]['waiting']:
+                    if not c_key and cs in [ns for (s, ns) in self.s[c]['stream']]:
                         c_key = (cs, cns)
                         any_changes |= True
 
                 if c_key is not None:
-                    data = self.waiting[c].pop(c_key)
-                    self.stream[c][c_key] = data
+                    data = self.s[c]['waiting'].pop(c_key)
+                    self.s[c]['stream'][c_key] = data
 
+        # ---------------------------------------------------------
         # sort packets in each stream and concat data
         # then remove all packet in each stream except for last one
         # for last one packet in stream set data as None
+        # ---------------------------------------------------------
 
-        for s in self.stream:
+        for s in self.s:
             if s not in result_data:
                 result_data[s] = ''
-            sorted_keys = sorted(self.stream[s].keys(), key=lambda tup: tup[0])
+            sorted_keys = sorted(self.s[s]['stream'].keys(), key=lambda tup: tup[0])
             for k in sorted_keys:
-                if self.stream[s][k] is not None and len(self.stream[s][k]) > 0:
-                    result_data[s] = result_data[s].join(self.stream[s][k])
+                if self.s[s]['stream'][k] is not None and len(self.s[s]['stream'][k]) > 0:
+                    result_data[s] = result_data[s].join(self.s[s]['stream'][k])
                 if k != sorted_keys[-1]:
-                    self.stream[s].pop(k)
+                    self.s[s]['stream'].pop(k)
                 else:
-                    self.stream[s][k] = None
+                    self.s[s]['stream'][k] = None
 
+        # --------------------------------------------------------------------------------------
         # zamykanie
-        # DONE: add closing stream (when finn then return None and delete stream from self.strem (how send end if result[streamtoclose] is not empty))
-
+        # DONE: add closing stream (when finn then return None and delete stream from self.strem
+        # (how send end if result[streamtoclose] is not empty))
+        # --------------------------------------------------------------------------------------
         any_changes = True
         while any_changes:
 
             any_changes = False
 
-            for c in self.closing.keys():
+            for c in self.s.keys():  # (s['closing'] for s in self.s):# self.closing.keys():
 
                 c_key = None
-                for (cs, cns) in self.closing[c]:
-                    if not c_key and c in self.stream and cs in [ns for (s, ns) in self.stream[c]]:
+                for (cs, cns) in self.s[c]['closing']:
+                    if not c_key and cs in [ns for (s, ns) in self.s[c]['stream']]:
                         c_key = (cs, cns)
                         any_changes |= True
 
                 if c_key is not None:
-                    self.stream.pop(c)
-                    self.closing.pop(c)
-                    self.waiting.pop(c)
+                    self.s.pop(c)
                     result_closed.append(c)
 
         # print self.stream
@@ -174,10 +181,6 @@ if __name__ == "__main__":
     p6.dport = 2
     p6.seq = 6
     p6.flags = dpkt.tcp.TH_RST
-
-
-
-
 
     r = TcpReassembler()
     print r.add_packet(p1)
