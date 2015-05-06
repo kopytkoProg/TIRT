@@ -1,6 +1,10 @@
 __author__ = 'michal'
 from isHttpHeader import is_http_header
 import re
+import time
+
+current_milli_time = lambda: int(round(time.time() * 1000))
+time_threshold = 1000 * 100
 
 
 class HttpReassembler:
@@ -13,14 +17,21 @@ class HttpReassembler:
         any_changes = True
 
         if is_http_header(data):
+
             # reject current data on selected port
-            self.hs[ports] = {'data': data, 'type': None, 'length': None}
+            self.hs[ports] = {'data': data, 'type': None, 'length': None, 'time': current_milli_time()}
         elif ports in self.hs:
             # append data to session
             self.hs[ports]['data'] += data
         else:
             any_changes = False
 
+        # remove old inactive http stream
+        for k in self.hs.keys():
+            if current_milli_time() - self.hs[k]['time'] > time_threshold:
+                self.hs.pop(k)
+
+        # prepare streams
         if any_changes:
             for k in self.hs.keys():
                 # if length of data not set
@@ -28,18 +39,23 @@ class HttpReassembler:
                     eoh = self.hs[k]['data'].find('\r\n\r\n')
                     # if whole header received
                     if eoh != -1:
+
                         header = self.hs[k]['data'][:eoh]
-                        r = 'Content-Length: (?P<length>[0-9]*)'
-                        m = re.search(r, header, re.IGNORECASE)
+                        rex = 'Content-Length: (?P<length>[0-9]*)'
+                        m = re.search(rex, header, re.IGNORECASE)
                         g = m.groupdict() if m is not None else None
 
                         if g is not None:
                             # if contain Content-Length field
                             self.hs[k]['length'] = int(g['length']) + len(header) + 4
+                        elif -1 == header.find('Transfer-Encoding: '):
+                            # no message body in http packet
+                            self.hs[k]['length'] = len(header) + 4
                         else:
                             # header don't have Content-Length field
                             self.hs.pop(k)
 
+            # add proper stream to response
             for k in self.hs.keys():
                 if self.hs[k]['length'] is not None and self.hs[k]['length'] == len(self.hs[k]['data']):
                     result.append(self.hs.pop(k)['data'])

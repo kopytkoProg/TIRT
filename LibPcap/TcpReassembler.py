@@ -59,7 +59,7 @@ class TcpReassembler():
             self.closing[cs] = {}
             self.closing[cs][p] = tcp.data
 
-        elif rst_flag and not syn_flag:  # (rst), (fin, ack)
+        elif rst_flag and not syn_flag:  # (rst), (rst, ack)
             # if reset flag then remove all received data in both direction
             cs_r = (cs[1], cs[0])
 

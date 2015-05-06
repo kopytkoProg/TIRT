@@ -19,7 +19,7 @@ class SelectorService(Service):
             msg = input_msg.my_read()
 
             h = HeaderParser(msg['header']).parse()
-            print msg
+            # print msg
             if isinstance(h, HttpRequest) and h.method == 'POST':
                 if 'Content-Encoding' not in h.fields \
                         and 'Content-Type' in h.fields \

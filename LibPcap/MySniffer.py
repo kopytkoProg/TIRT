@@ -140,12 +140,9 @@ def start_sniffing(callback):
                 # print rp
                 for p in rp['data']:
                     r = http_reas.add_packet(p, rp['data'][p])
-                    if len(r) > 0:
-                        # print r
-                        pass
 
                     for http_datagram in r:
-
+                        print r
                         eohh = '\r\n\r\n'
 
                         http_header = http_datagram[:http_datagram.find(eohh)]
@@ -169,8 +166,6 @@ def start_sniffing(callback):
                 #         http_data.append(ord(b))
                 #
                 #     callback({'data': http_data, 'header': http_header})
-
-
 
     packet_handler = PHAND(_packet_handler)
     alldevs = POINTER(pcap_if_t)()
