@@ -5,6 +5,7 @@ import string
 import platform
 import socket
 import dpkt
+import netifaces
 from struct import *
 from LibPcap.TcpReassembler import TcpReassembler
 from HttpReassembler import HttpReassembler
@@ -76,12 +77,25 @@ if platform.python_version()[0] == "3":
 PHAND = CFUNCTYPE(None, POINTER(c_ubyte), POINTER(pcap_pkthdr), POINTER(c_ubyte))
 
 
+def ip4_addresses():
+    ip_list = []
+    for interface in netifaces.interfaces():
+        if netifaces.AF_INET in netifaces.ifaddresses(interface):
+            for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
+                if 'addr' in link.keys():
+                    ip_list.append(link['addr'])
+    return ip_list
+
+
 def start_sniffing(callback):
     """
     Start sniffing. When tcp packet with HTTP header received then call callback
     :param callback:
     :return:
     """
+
+
+
     # Callback function invoked by libpcap for every incoming packet
     reas = TcpReassembler()
     http_reas = HttpReassembler()
@@ -128,10 +142,20 @@ def start_sniffing(callback):
 
         buf = pack('c' * (socket.ntohs(ih.tlen.real) + 14), *a)
 
-        if check_sum == 0xffff:
+        eth = dpkt.ethernet.Ethernet(buf)
+        ip = eth.data
 
-            eth = dpkt.ethernet.Ethernet(buf)
-            ip = eth.data
+        # print [link['addr'] for interface in netifaces.interfaces() if netifaces.AF_INET in netifaces.ifaddresses(interface) for link in netifaces.ifaddresses(interface)[netifaces.AF_INET] if 'addr' in link.keys()]
+
+        #
+        # for interface in netifaces.interfaces():
+        # if netifaces.AF_INET in netifaces.ifaddresses(interface):
+        # for link in netifaces.ifaddresses(interface)[netifaces.AF_INET]:
+        #             if 'addr' in link.keys():
+        #                 print link['addr']
+
+        if isinstance(ip, dpkt.ip.IP) and (check_sum == 0xffff or check_sum == 0x00 or socket.inet_ntoa(ip.src) in ip4_addresses()):
+
             tcp = ip.data
 
             if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80):
@@ -154,18 +178,18 @@ def start_sniffing(callback):
                         callback({'data': http_data, 'header': http_header})
 
 
-                # if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith(
-                #         'GET') or tcp.data.startswith('POST'):
-                #
-                #     eohh = '\r\n\r\n'
-                #
-                #     http_header = tcp.data[:tcp.data.find(eohh)]
-                #
-                #     http_data = []
-                #     for b in tcp.data[tcp.data.find(eohh) + len(eohh):]:
-                #         http_data.append(ord(b))
-                #
-                #     callback({'data': http_data, 'header': http_header})
+                        # if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith(
+                        # 'GET') or tcp.data.startswith('POST'):
+                        #
+                        # eohh = '\r\n\r\n'
+                        #
+                        #     http_header = tcp.data[:tcp.data.find(eohh)]
+                        #
+                        #     http_data = []
+                        #     for b in tcp.data[tcp.data.find(eohh) + len(eohh):]:
+                        #         http_data.append(ord(b))
+                        #
+                        #     callback({'data': http_data, 'header': http_header})
 
     packet_handler = PHAND(_packet_handler)
     alldevs = POINTER(pcap_if_t)()
@@ -186,6 +210,13 @@ def start_sniffing(callback):
         sys.exit(1)
     while d:
         i = i + 1
+
+        # addr = cast(addressof(d.addresses.contents.addr.contents)+4, POINTER(IpAddress)).contents
+        # print d.addresses.contents.addr.contents
+        # print dir(d.addresses.contents.addr.contents)
+        # print addr.byte1, addr.byte2, addr.byte3, addr.byte4
+        # print d.addresses.contents
+
         print("%d. %s" % (i, d.name))
         if d.description:
             print (" (%s)\n" % (d.description))
@@ -236,3 +267,4 @@ def start_sniffing(callback):
 
 if __name__ == "__main__":
     pass  # start_sniffing()
+
