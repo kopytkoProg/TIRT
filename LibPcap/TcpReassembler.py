@@ -109,7 +109,7 @@ class TcpReassembler():
             sorted_keys = sorted(self.s[s]['stream'].keys(), key=lambda tup: tup[0])
             for k in sorted_keys:
                 if self.s[s]['stream'][k] is not None and len(self.s[s]['stream'][k]) > 0:
-                    result_data[s] = result_data[s].join(self.s[s]['stream'][k])
+                    result_data[s] += self.s[s]['stream'][k]
                 if k != sorted_keys[-1]:
                     self.s[s]['stream'].pop(k)
                 else:
