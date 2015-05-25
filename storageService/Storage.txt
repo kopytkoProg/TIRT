@@ -60,3 +60,4 @@
 {"addr": "electropark.pl/logowanie", "pass": "email=asdFASDF&passwd=ASDFASDF&SubmitLogin=Zaloguj"}
 {"addr": "www.elektroda.pl/rtvforum/login.php", "pass": "username=Zaaaaapasdfasdf&password=kura10&login=Zaloguj"}
 {"addr": "www.elektroda.pl/rtvforum/login.php", "pass": "username=Zaaaaap&password=asdfasdfasdfasdfasdfasddddddddddddddddd&login=Zaloguj"}
+{"addr": "www.elektroda.pl/rtvforum/login.php", "pass": "username=Zaaaaap&password=asdasd&login=Zaloguj"}
