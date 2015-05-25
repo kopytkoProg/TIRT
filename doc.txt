@@ -1,0 +1,25 @@
+MySnifferService.py ---> 21003 SelectorService.py ---> 21002 MyPassFinderService.py ---> 21000 StorageService.py
+
+MySnifferService.py ---> 21003 SelectorService.py:
+   {
+      'data': http_data, 
+      'header': http_header
+   }
+   
+   
+SelectorService.py ---> 21002 MyPassFinderService.py
+   {
+       'header': msg['header'],                          # raw header
+       'fields': h.fields,                               # header fields
+       'request_line': h.request_line,                   # request line
+       'data': HeaderParser.data_to_string(msg['data'])  # data
+   }
+   
+MyPassFinderService.py ---> 21000 StorageService.py
+   {
+      'pass': pass_grdic['pass'],                        # post data with pass
+      'addr': url
+   }
+   
+   
+   
