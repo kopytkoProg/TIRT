@@ -160,22 +160,24 @@ def start_sniffing(callback):
 
             if isinstance(tcp, dpkt.tcp.TCP) and (tcp.sport == 80 or tcp.dport == 80):
 
-                rp = reas.add_packet(tcp)
-                # print rp
-                for p in rp['data']:
-                    r = http_reas.add_packet(p, rp['data'][p])
+                callback({'tcp': [ord(c) for c in tcp.__str__()]})
 
-                    for http_datagram in r:
-                        print r
-                        eohh = '\r\n\r\n'
-
-                        http_header = http_datagram[:http_datagram.find(eohh)]
-
-                        http_data = []
-                        for b in http_datagram[http_datagram.find(eohh) + len(eohh):]:
-                            http_data.append(ord(b))
-
-                        callback({'data': http_data, 'header': http_header})
+                # rp = reas.add_packet(tcp)
+                # # print rp
+                # for p in rp['data']:
+                #     r = http_reas.add_packet(p, rp['data'][p])
+                #
+                #     for http_datagram in r:
+                #         print r
+                #         eohh = '\r\n\r\n'
+                #
+                #         http_header = http_datagram[:http_datagram.find(eohh)]
+                #
+                #         http_data = []
+                #         for b in http_datagram[http_datagram.find(eohh) + len(eohh):]:
+                #             http_data.append(ord(b))
+                #
+                #         callback({'data': http_data, 'header': http_header})
 
 
                         # if len(tcp.data) > 0 and tcp.data.startswith('HTTP') or tcp.data.startswith(

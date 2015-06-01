@@ -1,11 +1,15 @@
 {
   "parametersHost": "localhost:22003",
   "inputs": {
-  },
-  "outputs": {
     "SniffService": {
       "ip": "127.0.0.1",
       "port": 21004
+    }
+  },
+  "outputs": {
+    "SelectorService": {
+      "ip": "127.0.0.1",
+      "port": 21003
     }
   }
 }
