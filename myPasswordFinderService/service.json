@@ -10,6 +10,14 @@
     "StorageService": {
       "ip": "127.0.0.1",
       "port": 21000
+    },
+    "MyPrinter": {
+      "ip": "127.0.0.1",
+      "port": 21101
+    },
+    "MyPrinterStat": {
+      "ip": "127.0.0.1",
+      "port": 21105
     }
   }
 }

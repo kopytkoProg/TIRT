@@ -10,7 +10,14 @@ class MyPassFinderService(Service):
         print('run')
         input_msg = self.get_input('In')
         """ :type: MyInputObjectConnector """
-        output_msg = self.get_output('StorageService')
+
+        output_msg_2_storage = self.get_output('StorageService')
+        """ :type: MyOutputObjectConnector """
+
+        output_msg_2_printer = self.get_output('MyPrinter')
+        """ :type: MyOutputObjectConnector """
+
+        output_stat_msg = self.get_output('MyPrinterStat')
         """ :type: MyOutputObjectConnector """
 
         exception = False
@@ -30,7 +37,10 @@ class MyPassFinderService(Service):
                 print ('MyPassFinderService:')
                 print (post_fields)
 
-                output_msg.my_send(post_fields)
+                output_msg_2_printer.my_send(post_fields)
+                output_msg_2_storage.my_send(post_fields)
+                self.stat['Selected passwords'] += 1
+                output_stat_msg.my_send(self.stat)
 
     def declare_inputs(self):
         print('declare_inputs')
@@ -39,10 +49,13 @@ class MyPassFinderService(Service):
     def declare_outputs(self):
         print('declare_outputs')
         self.declare_output('StorageService', MyOutputObjectConnector(self))
+        self.declare_output('MyPrinter', MyOutputObjectConnector(self))
+        self.declare_output('MyPrinterStat', MyOutputObjectConnector(self))
 
     def __init__(self):
         print('=============== Start storage service ===============')
         Service.__init__(self)
+        self.stat = {'Selected passwords': 0}
         self.my_password_finder = MyPasswordFinder()
 
 

@@ -12,6 +12,8 @@ class SelectorService(Service):
         """ :type: MyInputObjectConnector """
         output_msg = self.get_output('Out')
         """ :type: MyOutputObjectConnector """
+        output_stat_msg = self.get_output('MyPrinter')
+        """ :type: MyOutputObjectConnector """
 
         exception = False
         while self.running() and not exception:
@@ -25,11 +27,15 @@ class SelectorService(Service):
                         and 'Content-Type' in h.fields \
                         and h.fields['Content-Type'].startswith("application/x-www-form-urlencoded"):
                     print HeaderParser.data_to_string(msg['data'])
+
+                    self.stat['Selected http packets'] += 1
+                    output_stat_msg.my_send(self.stat)
+
                     output_msg.my_send(
                         {
                             'header': msg['header'],  # raw header
                             'fields': h.fields,  # header fields
-                            'request_line': h.request_line,   # request line
+                            'request_line': h.request_line,  # request line
                             'data': HeaderParser.data_to_string(msg['data'])  # data
                         })
 
@@ -40,10 +46,12 @@ class SelectorService(Service):
     def declare_outputs(self):
         print('declare_outputs')
         self.declare_output('Out', MyOutputObjectConnector(self))
+        self.declare_output('MyPrinter', MyOutputObjectConnector(self))
 
     def __init__(self):
         print('=============== Start SelectorService ===============')
         Service.__init__(self)
+        self.stat = {'Selected http packets': 0}
 
 
 if __name__ == "__main__":

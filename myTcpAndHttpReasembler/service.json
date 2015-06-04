@@ -1,5 +1,5 @@
 {
-  "parametersHost": "localhost:22003",
+  "parametersHost": "localhost:22006",
   "inputs": {
     "SniffService": {
       "ip": "127.0.0.1",
@@ -10,6 +10,10 @@
     "SelectorService": {
       "ip": "127.0.0.1",
       "port": 21003
+    },
+     "MyPrinter": {
+      "ip": "127.0.0.1",
+      "port": 21103
     }
   }
 }

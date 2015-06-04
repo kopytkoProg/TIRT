@@ -11,10 +11,15 @@ http_reas = HttpReassembler()
 
 
 class MyTcpAndHttpReassemblerService(Service):
-    def one_each_tcp_packet(self, data):
+    def one_each_http_packet(self, data):
 
         output_msg = self.get_output('SelectorService')
+        output_stat_msg = self.get_output('MyPrinter')
+
         output_msg.my_send(data)
+
+        self.stat['Http packets'] += 1
+        output_stat_msg.my_send(self.stat)
 
     def run(self):
         print('run')
@@ -26,9 +31,9 @@ class MyTcpAndHttpReassemblerService(Service):
         while self.running() and not exception:
 
             msg = input_msg.my_read()
-            str = ''.join([chr(c) for c in msg['tcp']])
+            raw_str = ''.join([chr(c) for c in msg['tcp']])
 
-            tcp = dpkt.tcp.TCP(str)
+            tcp = dpkt.tcp.TCP(raw_str)
 
             rp = reas.add_packet(tcp)
             # print rp
@@ -45,8 +50,7 @@ class MyTcpAndHttpReassemblerService(Service):
                     for b in http_datagram[http_datagram.find(eohh) + len(eohh):]:
                         http_data.append(ord(b))
 
-                    self.one_each_tcp_packet({'data': http_data, 'header': http_header})
-
+                    self.one_each_http_packet({'data': http_data, 'header': http_header})
 
     def declare_inputs(self):
         self.declare_input('SniffService', MyInputObjectConnector(self))
@@ -54,10 +58,12 @@ class MyTcpAndHttpReassemblerService(Service):
     def declare_outputs(self):
         print('declare_outputs')
         self.declare_output('SelectorService', MyOutputObjectConnector(self))
+        self.declare_output('MyPrinter', MyOutputObjectConnector(self))
 
     def __init__(self):
         print('=============== Start sniff service ===============')
         Service.__init__(self)
+        self.stat = {'Http packets': 0}
 
 
 if __name__ == "__main__":
